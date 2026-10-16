@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1118">
+  <title>Copy-on-Write Memory Demonstrator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="app-shell">
+  <header class="topbar" id="top">
+    <div class="brand-block">
+      <div class="brand-mark" aria-hidden="true">COW</div>
+      <div><p class="eyebrow">LINUX MEMORY LAB</p><h1>Copy-on-Write Memory Demonstrator</h1><p class="subtitle">Visualize memory sharing and Copy-on-Write in Linux.</p></div>
+    </div>
+    <div class="header-actions"><div id="status" class="status" role="status" aria-live="polite"><span class="status-dot"></span><span id="statusText">Ready</span></div><button id="reset" class="button secondary" title="Clear the displayed run results">Reset</button><button id="run" class="button primary"><span class="play-icon" aria-hidden="true">▶</span> Run Demonstration</button></div>
+  </header>
+
+  <section class="section process-section" aria-labelledby="processTitle">
+    <div class="section-heading"><div><p class="eyebrow">01 / PROCESS VISUALIZATION</p><h2 id="processTitle">Two processes, one starting page</h2></div><span class="badge badge-info" id="diagramBadge">ILLUSTRATIVE MODEL</span></div>
+    <p class="section-description" id="diagramNote">The diagram explains the usual Linux COW flow. It is not a page-table measurement.</p>
+    <div class="process-grid">
+      <article class="process-card parent-card">
+        <div class="process-card-heading"><span class="process-symbol parent-symbol">P</span><div><p class="eyebrow">PROCESS</p><h3>Parent</h3></div><span class="process-status" id="parentState">Waiting</span></div>
+        <dl class="process-data"><div><dt>PID</dt><dd id="parentPid">—</dd></div><div><dt>Memory value</dt><dd id="parentValue">—</dd></div></dl>
+      </article>
+      <div class="memory-visual" id="memoryVisual" data-state="idle" aria-label="Illustrative memory diagram, before execution">
+        <div class="memory-stage shared-stage">
+          <div class="memory-node node-parent"><span>Parent</span><i aria-hidden="true"></i></div>
+          <div class="shared-page"><span class="page-label">SHARED PAGE · CONCEPTUAL</span><strong id="sharedValue">—</strong><span class="page-subtitle">same starting value</span></div>
+          <div class="memory-node node-child"><span>Child</span><i aria-hidden="true"></i></div>
+        </div>
+        <div class="memory-stage split-stage" aria-hidden="true">
+          <div class="split-row"><span class="split-process">Parent</span><i class="connector" aria-hidden="true"></i><div class="private-page"><span>ORIGINAL PAGE</span><strong id="pageParentValue">—</strong></div></div>
+          <div class="split-row"><span class="split-process">Child</span><i class="connector child-connector" aria-hidden="true"></i><div class="private-page child-page"><span>PRIVATE COPY · CONCEPTUAL</span><strong id="pageChildValue">—</strong></div></div>
+        </div>
+      </div>
+      <article class="process-card child-card">
+        <div class="process-card-heading"><span class="process-symbol child-symbol">C</span><div><p class="eyebrow">PROCESS</p><h3>Child</h3></div><span class="process-status" id="childState">Waiting</span></div>
+        <dl class="process-data"><div><dt>PID</dt><dd id="childPid">—</dd></div><div><dt>Memory value</dt><dd id="childValue">—</dd></div></dl>
+      </article>
+    </div>
+    <p class="observation-note"><span class="note-mark">i</span><span><strong>What is measured:</strong> process IDs, values, and Linux <code>smaps_rollup</code> accounting. Those totals cannot prove that this particular physical page was copied, so page relationships remain labeled illustrative.</span></p>
+  </section>
+
+  <section class="section demo-section" aria-labelledby="demoTitle">
+    <div class="section-heading"><div><p class="eyebrow">02 / COPY-ON-WRITE DEMONSTRATION</p><h2 id="demoTitle">Follow the write</h2></div></div>
+    <div class="value-controls" aria-label="Demonstration memory values">
+      <label class="value-field" for="initialValue"><span>Parent starting value</span><input id="initialValue" name="initialValue" type="number" min="0" max="255" step="1" value="42" inputmode="numeric"></label>
+      <span class="value-arrow" aria-hidden="true">→</span>
+      <label class="value-field" for="childWriteValue"><span>Child write value</span><input id="childWriteValue" name="childWriteValue" type="number" min="0" max="255" step="1" value="90" inputmode="numeric"></label>
+      <span class="value-hint">Choose different byte values (0–255).</span>
+    </div>
+    <div class="timeline" id="timeline" aria-live="polite">
+      <article class="timeline-step" data-step="0"><span class="step-index">01</span><div><h3>Parent initializes memory</h3><p>One value is written before <code>fork()</code>.</p></div></article>
+      <article class="timeline-step" data-step="1"><span class="step-index">02</span><div><h3>Child is created</h3><p><code>fork()</code> creates a separate process.</p></div></article>
+      <article class="timeline-step" data-step="2"><span class="step-index">03</span><div><h3>Both read the starting value</h3><p>The C program reports each process's value.</p></div></article>
+      <article class="timeline-step" data-step="3"><span class="step-index">04</span><div><h3>Child writes a new value</h3><p>Linux typically handles this private-page write with COW.</p></div></article>
+      <article class="timeline-step" data-step="4"><span class="step-index">05</span><div><h3>Parent keeps its value</h3><p>The C output confirms the parent's value is unchanged.</p></div></article>
+    </div>
+    <div class="execution-row"><div class="execution-heading"><div><p class="eyebrow">EXECUTION OUTPUT</p><h3>Actual output from <code>cow_demo</code></h3></div></div><pre id="output" tabindex="0">Run the demonstration to show the C program's output here.</pre></div>
+  </section>
+
+  <section class="section results-section" aria-labelledby="resultsTitle">
+    <div class="section-heading"><div><p class="eyebrow">03 / MEMORY RESULTS</p><h2 id="resultsTitle">Run summary</h2></div><span class="badge" id="resultBadge">NO RUN YET</span></div>
+    <div class="result-summary" id="resultSummary" role="status" aria-live="polite">Run the demonstration to collect process values and available Linux memory accounting.</div>
+    <div class="stats-grid" id="statsGrid"><article class="stat-card"><p class="stat-label">PARENT · AFTER CHILD WRITE</p><p class="stat-empty">No measurement yet</p></article><article class="stat-card"><p class="stat-label">CHILD · AFTER ITS WRITE</p><p class="stat-empty">No measurement yet</p></article></div>
+    <p class="stats-caveat">RSS is resident memory; PSS apportions shared resident pages. Shared and private fields are process-wide kernel accounting, not proof of a specific page-copy event.</p>
+  </section>
+
+  <footer><span>Copy-on-Write Memory Demonstrator</span><span>Measured process output · Illustrative page diagram</span></footer>
+</main>
+<script src="script.js"></script>
+</body>
+</html>
