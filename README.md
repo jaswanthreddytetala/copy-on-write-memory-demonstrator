@@ -1,8 +1,10 @@
 # copy-on-write-memory-demonstrator
 
 "TEAM"
-T.Jaswanth Reddy-2520030284
-CH.Manikanta-2520030239
+T.Jaswanth Reddy-2520030284,
+
+CH.Manikanta-2520030239,
+
 T.Karthik-2520030234
 
 
